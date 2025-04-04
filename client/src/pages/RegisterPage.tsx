@@ -1,29 +1,28 @@
 import React, { useState } from 'react';
 import AuthService from '../services/auth.service';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const RegisterPage: React.FC = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
+    // const [error, setError] = useState<string | null>(null);
+    // const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(null);
         setLoading(true);
         try {
             await AuthService.register({ name, email, password });
-            setSuccess('Registration successful! Redirecting to login...');
+            toast.success('Registration successful! Redirecting to login...');
             setTimeout(() => {
                 navigate('/login');
             }, 2000); 
         } catch (err: any) {
-            setError(err.message || 'Failed to register. Please try again.');
+            toast.error(err.message || 'Failed to register. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -32,8 +31,6 @@ const RegisterPage: React.FC = () => {
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow-md">
             <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-            {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">

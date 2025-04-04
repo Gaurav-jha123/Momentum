@@ -4,6 +4,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast'
 
 
 function App() {
@@ -11,6 +12,33 @@ function App() {
 
   return (
     <Router>
+      <Toaster
+          position="top-right" // Or your preferred position
+          reverseOrder={false}
+          toastOptions={{
+            // Define default options
+            duration: 5000, // Default duration 5 seconds
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            // Default options for specific types
+            success: {
+              duration: 3000,
+              style: {
+                background: 'green',
+                color: 'white',
+              },
+            },
+             error: {
+              duration: 5000,
+              style: {
+                background: 'red',
+                color: 'white',
+              },
+            },
+          }}
+        />
       <div>
         <nav className="bg-gray-800 p-4 text-white">
           <ul className="flex space-x-4 items-center">
@@ -49,6 +77,19 @@ function App() {
   );
 }
 
-const HomePage = () => <h1 className="text-2xl font-bold">Welcome to SyncHub MVP</h1>;
+const HomePage = () => (
+  <div className="text-center mt-20">
+        <h1 className="text-4xl font-bold mb-4">Welcome to TaskFlow</h1>
+        <p className="text-lg text-gray-600">Your simple and effective task management tool.</p>
+        <div className="mt-8">
+             <Link to="/register" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mr-2">
+                Get Started
+            </Link>
+             <Link to="/login" className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Login
+            </Link>
+        </div>
+    </div>
+);
 
 export default App;
