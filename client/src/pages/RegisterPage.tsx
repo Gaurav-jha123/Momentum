@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AuthService from '../services/auth.service';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Button from '../components/common/Button';
 
 const RegisterPage: React.FC = () => {
     const [name, setName] = useState('');
@@ -62,13 +63,15 @@ const RegisterPage: React.FC = () => {
                         value={password} onChange={(e) => setPassword(e.target.value)} required
                     />
                 </div>
-                <div className="flex items-center justify-between">
-                    <button
-                       className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                       type="submit" disabled={loading}
-                    >
-                        {loading ? 'Registering...' : 'Register'}
-                    </button>
+                <div>
+                <Button 
+                type='submit'
+                variant='primary'
+                isLoading={loading}
+                disabled={loading}
+                className='w-full'>
+                    Regsiter
+                </Button>
                 </div>
                 <p className="text-center mt-4 text-sm">
                     Already have an account?{' '}

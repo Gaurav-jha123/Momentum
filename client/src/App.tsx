@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast'
+import Button from './components/common/Button';
 
 
 function App() {
@@ -48,12 +49,11 @@ function App() {
             {isAuthenticated && <li><Link to="/dashboard">Dashboard</Link></li>}
             {isAuthenticated && (
                 <li>
-                    <button
-                        onClick={logout}
-                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"
-                    >
-                        Logout
-                    </button>
+                    <Button
+                    type='submit'
+                    onClick={logout}
+                    variant='danger'
+                    size='sm'> Logout </Button>
                 </li>
             )}
           </ul>

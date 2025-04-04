@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import TaskService, { ITask } from '../services/task.service';
+import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 
 const DashboardPage: React.FC = () => {
@@ -113,13 +114,14 @@ const DashboardPage: React.FC = () => {
                         disabled={isSubmitting}
                     ></textarea>
               </div>
-              <button
+              <Button
                 type="submit"
-                 className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                variant="primary"
+                isLoading={isSubmitting} // Use the specific loading state for this action
                 disabled={isSubmitting}
-               >
-                  {isSubmitting ? 'Adding Task...' : 'Add Task'}
-              </button>
+             >
+                Add Task
+             </Button>
           </form>
       </div>
 

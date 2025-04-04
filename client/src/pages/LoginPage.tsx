@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthService from '../services/auth.service';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Button from '../components/common/Button';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -59,14 +60,17 @@ const LoginPage: React.FC = () => {
             required
           />
         </div>
-        <div className="flex items-center justify-between">
-          <button
-            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+
+        <div className="mt-6"> 
+          <Button
             type="submit"
+            variant="primary" 
+            isLoading={loading}
             disabled={loading}
+            className="w-full" 
           >
-            {loading ? 'Logging in...' : 'Sign In'}
-          </button>
+            Sign In
+          </Button>
         </div>
          <p className="text-center mt-4 text-sm">
             Don't have an account?{' '}
