@@ -1,0 +1,25 @@
+
+services:
+  # Server Service (Backend)
+  server:
+    build:
+      context: ./server 
+      dockerfile: Dockerfile
+    container_name: momentum-server
+    restart: unless-stopped
+    ports:
+      - "5001:5001" # Map host port 5001 to container port 5001
+    env_file:
+      - ./server/.env 
+
+  # Client Service (Frontend)
+  client:
+    build:
+      context: ./client 
+      dockerfile: Dockerfile
+    container_name: momentum-client 
+    restart: unless-stopped
+    ports:
+      - "80:80" # Map host port 80 to container port 80 (Nginx default)
+    depends_on: 
+      - server

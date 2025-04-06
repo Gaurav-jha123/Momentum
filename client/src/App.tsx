@@ -79,7 +79,7 @@ function App() {
 
 const HomePage = () => (
   <div className="text-center mt-20">
-        <h1 className="text-4xl font-bold mb-4">Welcome to TaskFlow</h1>
+        <h1 className="text-4xl font-bold mb-4">Welcome to Momentum</h1>
         <p className="text-lg text-gray-600">Your simple and effective task management tool.</p>
         <div className="mt-8">
              <Link to="/register" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mr-2">
