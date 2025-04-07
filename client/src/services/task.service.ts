@@ -1,10 +1,14 @@
 import apiClient from './api';
 
+export type TaskPriority = 'low' | 'medium' | 'high';
+
 export interface ITask {
     _id: string;
     title: string;
     description?: string;
     status: 'pending' | 'inProgress' | 'completed';
+    dueDate? : string;
+    priority : TaskPriority;
     user: string; 
     createdAt: string; 
     updatedAt: string;
@@ -13,7 +17,18 @@ export interface ITask {
 interface CreateTaskData {
     title: string;
     description?: string;
+    dueDate? : string;
+    priority : TaskPriority;
 }
+
+interface UpdateTaskData {
+    title?: string;
+    description?: string;
+    status?: 'pending' | 'inProgress' | 'completed';
+    dueDate?: string | null; // Allow null to clear date
+    priority?: TaskPriority;
+}
+
 
 class TaskService {
     async getTasks(): Promise<ITask[]> {
@@ -36,14 +51,18 @@ class TaskService {
         }
     }
 
-    async updateTaskStatus(taskId: string, status: ITask['status']): Promise<ITask> {
-         try {
-            const response = await apiClient.put<ITask>(`/tasks/${taskId}/status`, { status });
-            return response.data;
-        } catch (error: any) {
-            console.error("Failed to update task status:", error.response?.data || error.message);
-            throw error.response?.data || new Error("Failed to update task status");
-        }
+    async updateTask(taskId: string, data: UpdateTaskData): Promise<ITask> {
+        try {
+           const response = await apiClient.put<ITask>(`/tasks/${taskId}`, data);
+           return response.data;
+       } catch (error: any) {
+           console.error("Failed to update task:", error.response?.data || error.message);
+           throw error.response?.data || new Error("Failed to update task");
+       }
+   }
+
+   async updateTaskStatus(taskId: string, status: ITask['status']): Promise<ITask> {
+    return this.updateTask(taskId, { status });
     }
 
     async deleteTask(taskId: string): Promise<{ message: string }> {

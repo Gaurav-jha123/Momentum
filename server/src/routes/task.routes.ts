@@ -10,7 +10,7 @@ router.get('/', TaskController.getUserTasks);
 
 router.post('/', TaskController.createTask);
 
-router.put('/:taskId/status', TaskController.updateTaskStatus);
+router.put('/:taskId', TaskController.updateTask);
 
 router.delete('/:taskId', TaskController.deleteTask);
 
