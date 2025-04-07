@@ -12,10 +12,21 @@ const PORT = process.env.PORT || 5001;
 
 connectDB();
 
-const corsOptions = {
-  origin: process.env.CLIENT_URL || 'https://momentum-mvp-frontend.onrender.com', // Allow deployed frontend OR localhost
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, 
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5173', // Use env var for deployed frontend, fallback to local dev URL
+  'http://localhost', // Sometimes needed if frontend served on :80 locally via Docker
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Specify allowed methods
+  credentials: true, // Allow sending cookies or authorization headers
 };
 
 app.use(cors(corsOptions));
