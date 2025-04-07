@@ -12,7 +12,13 @@ const PORT = process.env.PORT || 5001;
 
 connectDB();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.CLIENT_URL || 'http://localhost', // Allow deployed frontend OR localhost
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true, 
+};
+
+app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 app.get("/", (req: Request, res: Response) => {
