@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5001;
 connectDB();
 
 const corsOptions = {
-  origin: process.env.CLIENT_URL || 'http://localhost', // Allow deployed frontend OR localhost
+  origin: process.env.CLIENT_URL || 'https://momentum-mvp-frontend.onrender.com/', // Allow deployed frontend OR localhost
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, 
 };
