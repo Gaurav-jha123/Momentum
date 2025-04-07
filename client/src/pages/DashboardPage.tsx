@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import TaskService, { ITask , TaskPriority} from '../services/task.service';
+import TaskService, { ITask , TaskPriority, UpdateTaskData} from '../services/task.service';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
+import EditTaskModal from '../components/tasks/EditTaskModal';
 
 const formatDateForInput = (dateString?: string): string => {
   if (!dateString) return '';
@@ -39,6 +40,10 @@ const DashboardPage: React.FC = () => {
   const [newTaskPriority, setNewTaskPriority] = useState<TaskPriority>('medium'); // Default priority
   // const [error, setError] = useState<string | null>(null);
   // const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // --- ADD STATE FOR EDITING ---
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);
@@ -100,6 +105,24 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  const handleUpdateTask = async (taskId: string, updatedData: UpdateTaskData) => {
+    try {
+        const updatedTask = await TaskService.updateTask(taskId, updatedData);
+
+        // Update the task list state
+        setTasks(prevTasks => prevTasks.map(task =>
+            task._id === taskId ? updatedTask : task
+        ));
+
+        toast.success(`Task "${updatedTask.title}" updated successfully!`);
+        handleCloseEditModal(); // Close the modal on success
+
+    } catch (error: any) {
+        toast.error(error.message || "Failed to update task.");
+    }
+    // No finally block needed here to set loading state, as that's handled within the modal
+  };
+
   const handleDeleteTask = async (taskId: string) => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
     const originalTasks = [...tasks];
@@ -112,6 +135,16 @@ const DashboardPage: React.FC = () => {
       setTasks(originalTasks);
     }
   };
+
+    const handleOpenEditModal = (task: ITask) => {
+        setEditingTask(task); // Set the task to be edited
+        setIsEditModalOpen(true); // Open the modal
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalOpen(false); 
+        setEditingTask(null); 
+    };
 
   return (
     <div>
@@ -206,7 +239,17 @@ const DashboardPage: React.FC = () => {
                                         <option value="inProgress">In Progress</option>
                                         <option value="completed">Completed</option>
                                     </select>
-                                    {/* <Button size="sm" variant="secondary" className="p-1">Edit</Button> */}
+                                    {/* --- ADD EDIT BUTTON --- */}
+                                 <Button
+                                     onClick={() => handleOpenEditModal(task)} 
+                                     variant="secondary" 
+                                     size="sm"
+                                     className="p-1"
+                                     title="Edit Task"
+                                 >
+                                     Edit
+                                 </Button>
+                                 {/*ADD DELETE BUTTON*/}
                                     <Button onClick={() => handleDeleteTask(task._id)} title="Delete Task"
                                         variant="danger" size="sm" className="p-1">
                                         Delete
@@ -216,9 +259,18 @@ const DashboardPage: React.FC = () => {
                         ))}
                     </ul>
                 )}
-            </div>
-        </div>
-    );
+                </div>
+            {isEditModalOpen && editingTask && (
+         <EditTaskModal
+            isOpen={isEditModalOpen} // Control visibility
+            task={editingTask}       // Pass the task data
+            onClose={handleCloseEditModal} // Pass the close handler
+            onUpdate={handleUpdateTask} // Pass the update handler
+         />
+    )}
+    </div>
+  )
 };
+
 
 export default DashboardPage;

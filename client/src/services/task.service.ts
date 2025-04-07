@@ -21,7 +21,7 @@ interface CreateTaskData {
     priority : TaskPriority;
 }
 
-interface UpdateTaskData {
+export interface UpdateTaskData {
     title?: string;
     description?: string;
     status?: 'pending' | 'inProgress' | 'completed';
