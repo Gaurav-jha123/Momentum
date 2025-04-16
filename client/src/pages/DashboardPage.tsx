@@ -4,6 +4,8 @@ import TaskService, { ITask , TaskPriority, UpdateTaskData} from '../services/ta
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import EditTaskModal from '../components/tasks/EditTaskModal';
+import socket from '../services/socket.server';
+
 
 const formatDateForInput = (dateString?: string): string => {
   if (!dateString) return '';
@@ -61,6 +63,68 @@ const DashboardPage: React.FC = () => {
     fetchTasks();
   }, [fetchTasks]);
 
+
+  // --- WebSocket Event Handling ---
+  useEffect(() => {
+    // Function to handle new tasks received via WebSocket
+    const handleTaskCreated = (newTask: ITask) => {
+        console.log('Socket event: task:created received', newTask);
+        setTasks(currentTasks => {
+            // Double-check if it somehow already exists (e.g., rapid events)
+            const taskExists = currentTasks.some(task => task._id === newTask._id);
+            console.log(`Received task ${newTask._id}. Already in state [${currentTasks.map(t=>t._id).join(', ')}]? ${taskExists}`);
+            if (!taskExists) {
+                toast.success(`New task added: "${newTask.title}"`);
+                return [newTask, ...currentTasks]; // Prepend the new task
+            }
+            return currentTasks; // Task already exists, return state unchanged
+        });
+    };
+
+    // Function to handle updated tasks received via WebSocket
+    const handleTaskUpdated = (updatedTask: ITask) => {
+        console.log('Socket event: task:updated received', updatedTask);
+        setTasks(prevTasks =>
+            prevTasks.map(task =>
+                task._id === updatedTask._id ? updatedTask : task
+            )
+        );
+        toast.success(`Task updated: "${updatedTask.title}"`);
+    };
+
+    // Function to handle deleted tasks received via WebSocket
+    const handleTaskDeleted = (data: { taskId: string }) => {
+        console.log('Socket event: task:deleted received', data);
+        setTasks(prevTasks =>
+            prevTasks.filter(task => task._id !== data.taskId)
+        );
+        toast.error(`Task deleted.`); 
+    };
+
+    // --- Set up listeners when component mounts ---
+    console.log('Setting up socket listeners...');
+    socket.on('task:created', handleTaskCreated);
+    socket.on('task:updated', handleTaskUpdated);
+    socket.on('task:deleted', handleTaskDeleted);
+
+    // Re-connect socket if it's disconnected (e.g., navigating back to page)
+    // The service attempts reconnection, but explicit connect might be needed
+    if (!socket.connected) {
+        socket.connect();
+    }
+
+    // --- Clean up listeners when component unmounts ---
+    return () => {
+        console.log('Cleaning up socket listeners...');
+        socket.off('task:created', handleTaskCreated);
+        socket.off('task:updated', handleTaskUpdated);
+        socket.off('task:deleted', handleTaskDeleted);
+        // Optional: Disconnect if appropriate
+        // socket.disconnect();
+    };
+}, []); // Empty dependency array means this runs once on mount and cleanup on unmount
+
+
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) {
@@ -69,13 +133,16 @@ const DashboardPage: React.FC = () => {
     }
     setIsSubmitting(true);
     try{
-      const createdTask = await TaskService.createTask({
-        title: newTaskTitle,
-        description: newTaskDescription,
-        dueDate: newTaskDueDate || undefined, // Send undefined if empty
-        priority: newTaskPriority,
-      });
-      setTasks((prevTasks) => [createdTask, ...prevTasks]);
+
+      const payload: any = {
+            title: newTaskTitle,
+            description: newTaskDescription || undefined,
+            dueDate: newTaskDueDate || undefined,
+            priority: newTaskPriority,
+      };
+
+      const createdTask = await TaskService.createTask(payload);
+      //setTasks((prevTasks) => [createdTask, ...prevTasks]);
       toast.success(`Task "${createdTask.title}" created!`);
       setNewTaskTitle('');
       setNewTaskDescription('');

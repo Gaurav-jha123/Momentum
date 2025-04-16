@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import TaskModel, { ITask , TaskPriority } from '../models/task.model';
 import mongoose from 'mongoose';
+import { io } from '../app';
 
 
 const isValidPriority = (value: any): value is TaskPriority => {
@@ -38,6 +39,12 @@ class TaskController {
             });
 
             const createdTask = await task.save();
+            
+            // --- Emit WebSocket Event ---
+            // io.emit sends to *all* connected clients
+            io.emit('task:created', createdTask); // Send the newly created task data
+            console.log(`Emitted task:created event for task ID: ${createdTask._id}`);
+            // --- End Emit ---
 
             return res.status(201).json(createdTask);
 
@@ -107,6 +114,12 @@ class TaskController {
             }
     
             const updatedTask = await task.save();
+
+            // --- Emit WebSocket Event for Update ---
+            io.emit('task:updated', updatedTask);
+            console.log(`Emitted task:updated event for task ID: ${updatedTask._id}`);
+            // --- End Emit ---
+
             return res.status(200).json(updatedTask);
         } catch (error) {
             console.error('Error updating task:', error);
@@ -127,6 +140,13 @@ class TaskController {
             if (result.deletedCount === 0) {
                 return res.status(404).json({ message: 'Task not found or not authorized' });
             }
+
+            // --- Emit WebSocket Event for Delete ---
+             // Send the ID of the deleted task
+             io.emit('task:deleted', { taskId });
+             console.log(`Emitted task:deleted event for task ID: ${taskId}`);
+             // --- End Emit ---
+
             return res.status(200).json({ message: 'Task deleted successfully' });
         } catch (error) {
             console.error('Error deleting task:', error);
